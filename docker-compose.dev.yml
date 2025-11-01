@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  admin-dev:
+    build: .
+    image: bitcart-admin:dev
+    command: yarn dev
+    ports:
+      - "4000:4000"
+    environment:
+      - NUXT_HOST=0.0.0.0
+      - NUXT_PORT=4000
+      - BITCART_ADMIN_API_URL=${BITCART_ADMIN_API_URL:-https://pay.bnscell.com/api}
+    volumes:
+      - ./:/src
+      - /src/node_modules
+    stdin_open: true
+    tty: true
+    # Use this service for local development with hot reload. To override the API URL from the host,
+    # set BITCART_ADMIN_API_URL in your shell before running docker compose (example below).

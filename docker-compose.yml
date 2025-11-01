@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  admin:
+    build: .
+    image: bitcart-admin:local
+    ports:
+      - "4000:4000"
+    environment:
+      - NUXT_HOST=0.0.0.0
+      - NUXT_PORT=4000
+    restart: unless-stopped
+    # Uncomment the volume below for rapid local development (hot-reload)
+    # volumes:
+    #   - ./:/src
+    #   - /src/node_modules

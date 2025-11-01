@@ -243,7 +243,6 @@
               :store="store"
               :input-payment-address="inputPaymentAddress"
               @update:paymentSelectionFormRef="paymentSelectionFormRef = $event"
-              @update:tabsRef="tabsRef = $event"
               @update:inputPaymentAddress="inputPaymentAddress = $event"
             >
               <v-list-item
@@ -333,149 +332,74 @@
               <v-list-item-content class="ma-0 pa-0">
                 <v-card class="ma-0 pa-0">
                   <v-card-text class="ma-0 pa-0">
-                    <v-container class="ma-0 pa-0">
-                      <v-tabs
-                        ref="tabs"
-                        v-model="selectedAction"
-                        centered
-                        grow
-                        :active-class="checkoutPage ? 'activeTab' : null"
-                        :color="checkoutPage ? 'success' : null"
+                    <v-container class="pa-4">
+                      <UIExtensionSlot
+                        name="checkout_payment"
+                        :itemv="itemv"
+                        :store="store"
+                        :update-payment-details="updatePaymentDetails"
+                        :abi-cache="abiCache"
+                        :checkout-page="checkoutPage"
                       >
-                        <v-tab>Scan</v-tab>
-                        <v-tab>Copy</v-tab>
-                      </v-tabs>
-                      <v-divider />
-                      <v-tabs-items
-                        v-model="selectedAction"
-                        class="payment-box"
-                      >
-                        <UIExtensionSlot
-                          name="checkout_payment"
-                          :itemv="itemv"
-                          :store="store"
-                          :update-payment-details="updatePaymentDetails"
-                          :abi-cache="abiCache"
-                          :checkout-page="checkoutPage"
-                        >
-                          <v-tab-item>
-                            <v-container fill-height>
-                              <v-row align="center" justify="center">
-                                <v-tabs
-                                  v-if="itemv.lightning"
-                                  v-model="selectedToCopy"
-                                  centered
-                                  :active-class="
-                                    checkoutPage ? 'activeTab' : null
-                                  "
-                                  :color="checkoutPage ? 'success' : null"
-                                >
-                                  <v-tab>Invoice</v-tab>
-                                  <v-tab>Node Info</v-tab>
-                                </v-tabs>
-                                <UIExtensionSlot
-                                  name="checkout_payment_qr"
-                                  :invoice="invoice"
-                                  :method="itemv"
-                                  :qr-value="qrValue"
-                                >
-                                  <qrcode
-                                    :options="{ width: 240 }"
-                                    :value="qrValue"
-                                    tag="v-img"
-                                    class="d-flex justify-center"
-                                  />
-                                </UIExtensionSlot>
-                              </v-row>
-                              <v-row justify="center">
-                                <metamask-button
+                        <v-container fill-height>
+                          <v-row align="center" justify="center">
+                            <UIExtensionSlot
+                              name="checkout_payment_qr"
+                              :invoice="invoice"
+                              :method="itemv"
+                              :qr-value="qrValue"
+                            >
+                              <qrcode
+                                :options="{ width: 240 }"
+                                :value="qrValue"
+                                tag="v-img"
+                                class="d-flex justify-center"
+                              />
+                            </UIExtensionSlot>
+                          </v-row>
+                          <v-row justify="center">
+                            <metamask-button
+                              v-if="$device.isDesktop && isEthPaymentMethod"
+                              :abi="abiCache"
+                              :update-address="updatePaymentDetails"
+                              :method="itemv"
+                            />
+                          </v-row>
+                          <v-row v-if="showRecommendedFee" justify="center">
+                            Recommended fee: {{ itemv.recommended_fee }} sat/byte
+                          </v-row>
+                          <v-row v-if="itemv.hint" justify="center">
+                            {{ itemv.hint }}
+                          </v-row>
+                          <v-divider class="my-4" />
+                          <div>
+                            <display-field
+                              :title="itemv.lightning ? 'Invoice' : 'Address'"
+                              :value="itemv.lightning ? itemv.payment_url : itemv.payment_address"
+                            />
+                            <v-row justify="center" class="mt-4">
+                              <UIExtensionSlot
+                                name="checkout_payment_open"
+                                :method="itemv"
+                                :update-address="updatePaymentDetails"
+                                :abi-cache="abiCache"
+                              >
+                                <wallet-connect-button
                                   v-if="$device.isDesktop && isEthPaymentMethod"
-                                  :abi="abiCache"
-                                  :update-address="updatePaymentDetails"
                                   :method="itemv"
+                                  :update-address="updatePaymentDetails"
+                                  :abi="abiCache"
                                 />
-                              </v-row>
-                              <v-row justify="center">
-                                <UIExtensionSlot
-                                  name="checkout_payment_open"
-                                  :method="itemv"
-                                  :update-address="updatePaymentDetails"
-                                  :abi="abiCache"
-                                >
-                                  <wallet-connect-button
-                                    v-if="
-                                      $device.isDesktop && isEthPaymentMethod
-                                    "
-                                    :method="itemv"
-                                    :update-address="updatePaymentDetails"
-                                    :abi="abiCache"
-                                  />
-                                  <v-btn
-                                    v-else
-                                    color="primary"
-                                    @click="openInWallet(paymentURL)"
-                                    >Open in wallet</v-btn
-                                  >
-                                </UIExtensionSlot>
-                              </v-row>
-                              <v-row v-if="showRecommendedFee" justify="center">
-                                Recommended fee:
-                                {{ itemv.recommended_fee }} sat/byte
-                              </v-row>
-                              <v-row v-if="itemv.hint" justify="center">
-                                {{ itemv.hint }}
-                              </v-row>
-                            </v-container>
-                          </v-tab-item>
-                          <v-tab-item>
-                            <v-card flat class="pa-0 ma-0">
-                              <v-card-text>
-                                <div v-if="!zeroAmountInvoice">
-                                  <p class="d-flex justify-center">Amount</p>
-                                  <p
-                                    class="d-flex justify-center"
-                                    :class="
-                                      getAmountClass(
-                                        itemv.amount.length +
-                                          itemv.symbol.length +
-                                          1
-                                      )
-                                    "
-                                  >
-                                    {{ itemv.amount }}
-                                    {{ itemv.symbol.toUpperCase() }}
-                                  </p>
-                                  <v-divider />
-                                </div>
-                                <UIExtensionSlot
-                                  name="checkout_payment_copy_extra"
-                                  :method="itemv"
-                                >
-                                  <display-field
-                                    :title="
-                                      itemv.lightning ? 'Invoice' : 'Address'
-                                    "
-                                    :value="itemv.payment_address"
-                                  />
-                                  <display-field
-                                    v-if="itemv.lightning"
-                                    title="Node Info"
-                                    :value="itemv.node_id"
-                                  />
-                                  <display-field
-                                    v-else
-                                    title="Payment Link"
-                                    :value="itemv.payment_url"
-                                  />
-                                  <v-row v-if="itemv.hint" justify="center">
-                                    {{ itemv.hint }}
-                                  </v-row>
-                                </UIExtensionSlot>
-                              </v-card-text>
-                            </v-card>
-                          </v-tab-item>
-                        </UIExtensionSlot>
-                      </v-tabs-items>
+                                <v-btn
+                                  v-else
+                                  color="primary"
+                                  @click="openInWallet(paymentURL)"
+                                >Open in wallet</v-btn>
+                              </UIExtensionSlot>
+                            </v-row>
+                          </div>
+                        </v-container>
+                      </UIExtensionSlot>
                     </v-container>
                   </v-card-text>
                   <v-card-actions class="justify-center">
@@ -671,8 +595,7 @@ export default {
     return {
       showDetails: false,
       selectedCurrency: 0,
-      selectedAction: null,
-      selectedToCopy: null,
+      
       showMenu: false,
       endDate: new Date(),
       expirationPercentage: 0,
@@ -688,7 +611,7 @@ export default {
       additionalUpdating: false,
       abiCache: {},
       paymentSelectionFormRef: null,
-      tabsRef: null,
+      
       emailFormRef: null,
       additionalFormRef: null,
     }
@@ -719,9 +642,7 @@ export default {
       return this.itemv.currency
     },
     qrValue() {
-      return this.itemv.lightning && this.selectedToCopy === 1
-        ? this.itemv.node_id
-        : this.itemv.payment_url
+      return this.itemv.payment_url
     },
     noTabs() {
       return this.invoice.payments.length === 0
@@ -788,14 +709,10 @@ export default {
   watch: {
     showProp(val) {
       if (!val) {
-        this.selectedAction = null
-        this.selectedToCopy = null
         this.selectedCurrency = 0
       }
     },
     selectedCurrency(val) {
-      this.selectedAction = null
-      this.selectedToCopy = null
       this.inputPaymentAddress = ""
       this.paymentAddressErrors = []
       this.fetchTokenABI()
@@ -918,9 +835,6 @@ export default {
           const payments = this.invoice.payments
           payments[this.selectedCurrency].user_address = address
           this.$emit("update:invoice", { ...this.invoice, payments })
-          // NOTE: a nasty hack to fix vuetify tabs not detecting movements
-          const ref = this.tabsRef || this.$refs.tabs
-          setTimeout(() => ref.onResize(), 100)
         })
         .catch((err) => {
           this.addressUpdating = false
