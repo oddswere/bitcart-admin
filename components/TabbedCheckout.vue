@@ -372,7 +372,7 @@
                             {{ itemv.hint }}
                           </v-row>
                           <v-divider class="my-4" />
-                          <div>
+                          <div class="checkout-narrow mx-auto">
                             <display-field
                               :title="itemv.lightning ? 'Invoice' : 'Address'"
                               :value="itemv.lightning ? itemv.payment_url : itemv.payment_address"
@@ -392,6 +392,8 @@
                                 />
                                 <v-btn
                                   v-else
+                                  class="open-wallet-btn"
+                                  block
                                   color="primary"
                                   @click="openInWallet(paymentURL)"
                                 >Open in wallet</v-btn>
@@ -873,6 +875,13 @@ export default {
 }
 .v-list-item__title.align-right {
   align-self: flex-end;
+}
+.checkout-narrow {
+  max-width: 360px;
+  width: 100%;
+}
+.open-wallet-btn {
+  width: 100%;
 }
 .multipleCurrency {
   border-width: 1px;
