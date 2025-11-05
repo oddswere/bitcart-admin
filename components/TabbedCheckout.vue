@@ -436,20 +436,6 @@
                         :itemv="itemv"
                       />
                     </div>
-                    <v-btn
-                      v-if="!checkoutPage"
-                      class="justify-center"
-                      color="primary"
-                      @click="checkout(invoice.id)"
-                    >
-                      <v-icon left="left"> mdi-open-in-new </v-icon
-                      ><span
-                        >Open checkout
-                        <v-btn text color="white" @click.stop="showPopup"
-                          >^</v-btn
-                        ></span
-                      >
-                    </v-btn>
                   </v-card-actions>
                 </v-card>
               </v-list-item-content>
@@ -552,6 +538,17 @@
             </UIExtensionSlot>
           </div>
         </v-list>
+        <div class="checkout-narrow mx-auto mt-2 mb-6">
+          <v-btn
+            outlined
+            color="#ffffffb3"
+            block
+            class="back-to-shop-outline"
+            @click="$emit('closedialog')"
+          >
+            Back To Shop
+          </v-btn>
+        </div>
       </div>
     </UIExtensionSlot>
   </v-container>
@@ -882,6 +879,10 @@ export default {
 }
 .open-wallet-btn {
   width: 100%;
+}
+/* Make Back To Shop subtle and transparent */
+.back-to-shop-outline {
+  background-color: transparent !important;
 }
 .multipleCurrency {
   border-width: 1px;
