@@ -538,16 +538,19 @@
             </UIExtensionSlot>
           </div>
         </v-list>
-        <div class="checkout-narrow mx-auto mt-2 mb-6">
-          <v-btn
-            outlined
-            color="#ffffffb3"
-            block
-            class="back-to-shop-outline"
-            @click="$emit('closedialog')"
-          >
-            Back To Shop
-          </v-btn>
+        <div class="checkout-narrow mx-auto">
+          <v-row justify="center">
+            <v-btn
+              outlined
+              color="#ffffffb3"
+              block
+              class="back-to-shop-outline open-wallet-btn"
+              height="36"
+              @click="$emit('closedialog')"
+            >
+              Back To Shop
+            </v-btn>
+          </v-row>
         </div>
       </div>
     </UIExtensionSlot>
